@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>景點觀光展覽資訊</title>
+  <style>
+    table {
+      font-family: Arial, Helvetica, sans-serif;
+      border-collapse: collapse;
+      width: 100%;
+    }
+    td, th {
+      border: 1px solid #ddd;
+      padding: 6px;
+    }
+    tr:nth-child(even){background-color: #f2f2f2;}
+    tr:hover {background-color: #ddd;}
+    th {
+      padding-top: 12px;
+      padding-bottom: 12px;
+      text-align: left;
+      background-color: #04AA6D;
+      color: white;
+    }
+    .pagination {
+      margin-top: 10px;
+    }
+    .pagination button {
+      margin-right: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>景點觀光展覽資訊</h1>
+  <input type="text" id="search" placeholder="請輸入名稱關鍵字" onchange="onSearchChange()" />
+  <table id="csie">
+    <thead>
+      <tr>
+        <th>名稱</th>
+        <th>地點</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- 資料由 JS 動態產生 -->
+    </tbody>
+  </table>
+  <div class="pagination">
+    <button onclick="prevPage()">上一頁</button>
+    <span id="pageInfo"></span>
+    <button onclick="nextPage()">下一頁</button>
+  </div>
+  <script>
+    var openUrl = "https://cloud.culture.tw/frontsite/trans/SearchShowAction.do?method=doFindTypeJ&category=6";
+    var allData = [];       // 全部原始資料
+    var filteredData = [];  // 搜尋後資料
+    var currentPage = 1;
+    var pageSize = 10;
+
+    // Ajax 載入資料
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', openUrl, true);
+    xhr.send();
+    xhr.onreadystatechange = function(){
+      if(this.readyState == 4 && this.status == 200){
+        allData = JSON.parse(this.responseText);
+        filteredData = allData;
+        currentPage = 1;
+        renderTable();
+      }
+    };
+
+    // 搜尋事件
+    function onSearchChange() {
+      var keyword = document.getElementById('search').value.trim();
+      if (keyword === "") {
+        filteredData = allData;
+      } else {
+        filteredData = allData.filter(function(item){
+          return item.title && item.title.indexOf(keyword) !== -1;
+        });
+      }
+      currentPage = 1;
+      renderTable();
+    }
+
+    // 渲染表格
+    function renderTable() {
+      var tbody = document.querySelector("#csie tbody");
+      tbody.innerHTML = "";
+      var totalPages = Math.max(1, Math.ceil(filteredData.length / pageSize));
+      if (currentPage > totalPages) currentPage = totalPages;
+      var start = (currentPage - 1) * pageSize;
+      var end = Math.min(start + pageSize, filteredData.length);
+      for (var i = start; i < end; i++) {
+        var data = filteredData[i];
+        var row = tbody.insertRow(-1);
+        row.insertCell(0).innerHTML = data['title'] || "";
+        row.insertCell(1).innerHTML = (data['showInfo'] && data['showInfo'][0] && data['showInfo'][0]['location']) ? data['showInfo'][0]['location'] : "";
+      }
+      document.getElementById('pageInfo').textContent = 
+        `第 ${currentPage} / ${totalPages} 頁（共${filteredData.length}筆）`;
+    }
+
+    function prevPage() {
+      if (currentPage > 1) {
+        currentPage--;
+        renderTable();
+      }
+    }
+
+    function nextPage() {
+      var totalPages = Math.max(1, Math.ceil(filteredData.length / pageSize));
+      if (currentPage < totalPages) {
+        currentPage++;
+        renderTable();
+      }
+    }
+  </script>
+</body>
+</html>
