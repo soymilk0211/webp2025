@@ -1,0 +1,26 @@
+/* App.css */
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.MuiContainer-root {
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+.MuiTypography-h4 {
+  margin-bottom: 20px;
+  color: #04AA6D;
+}
+
+.MuiDataGrid-root {
+  background-color: white;
+  border: 1px solid #ddd;
+}
+
+.MuiDataGrid-columnHeader {
+  background-color: #04AA6D;
+  color: white;
+}
